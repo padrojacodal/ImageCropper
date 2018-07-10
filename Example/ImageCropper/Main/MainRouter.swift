@@ -53,7 +53,7 @@ extension MainRouterImplementation: MainRouter {
     var config = ImageCropperConfiguration(with: img, and: figure)
 
     
-    config.showGrid = true
+    config.showGrid = false
     if figure == .customRect {
       config.customRatio = CGSize(width: 6, height: 5)
     }
@@ -70,7 +70,8 @@ extension MainRouterImplementation: MainRouter {
       self.openPostProduction(with: croppedImage)
     }
     
-    view?.navigationController?.pushViewController(cropper, animated: true)
+    view?.present(cropper, animated: true, completion: nil)
+    //view?.navigationController?.pushViewController(cropper, animated: true)
   }
   
   func showAlertNoImage() {
@@ -90,7 +91,8 @@ extension MainRouterImplementation: MainRouter {
     }
     
     result.image = image
-    view?.navigationController?.pushViewController(result, animated: true)
+    view?.dismiss(animated: true, completion: nil)
+    //view?.navigationController?.pushViewController(result, animated: true)
   }
 }
 
