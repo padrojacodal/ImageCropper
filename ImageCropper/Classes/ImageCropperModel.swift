@@ -98,7 +98,7 @@ extension ImageCropperModelImplementation: ImageCropperModel {
     guard let frame = figureFrame else {
       return UIBezierPath(rect: .zero).cgPath
     }
-    return UIBezierPath(roundedRect: frame, cornerRadius: 95.0).cgPath
+    return UIBezierPath(roundedRect: frame, cornerRadius: 75.0).cgPath
   }
   
   var borderColor: CGColor {
@@ -286,7 +286,7 @@ extension ImageCropperModelImplementation: ImageCropperModel {
     
     let cornerRadius = configuration.figure == .circle ? width / 2 : 0
     let roundedRect =  CGRect(origin: .zero, size: croppedRect.size)
-    UIBezierPath(roundedRect: roundedRect, cornerRadius: 95.0).addClip()
+    UIBezierPath(roundedRect: roundedRect, cornerRadius: 75.0).addClip()
     UIImage(cgImage: imageRef, scale: 1, orientation: image.imageOrientation).draw(in: roundedRect)
     
     guard let croppedImage = UIGraphicsGetImageFromCurrentImageContext() else {
