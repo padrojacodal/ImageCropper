@@ -53,11 +53,6 @@ public class ImageCropperViewController: UIViewController {
     super.viewDidLayoutSubviews()
     presenter?.viewDidLayoutSubviews(in: view.bounds)
   }
-  
-//  override public var prefersStatusBarHidden: Bool {
-//    return true
-//  }
-  
 }
 
 //MARK: - Private
@@ -88,19 +83,14 @@ extension ImageCropperViewController {
   }
   
   @IBAction func actionPinch(_ sender: UIPinchGestureRecognizer) {
-    
     switch sender.state {
     case .began:
       guard sender.numberOfTouches >= 2 else { return }
       presenter?.userInteraction(true)
-      
-      pinchStartDistance = distance(from: sender.location(ofTouch: 0, in: grid), to: sender.location(ofTouch: 1, in: grid))
+      presenter?.didPinchStarted()
     case .changed:
       guard sender.numberOfTouches >= 2 else { return }
-      let realDistance = distance(from: sender.location(ofTouch: 0, in: grid), to: sender.location(ofTouch: 1, in: grid))
-      let scaleDistance = (realDistance - pinchStartDistance) / 10 + pinchStartDistance
-      presenter?.didScale(with: scaleDistance / pinchStartDistance)
-      
+      presenter?.didScale(with: sender.scale)
     case .ended, .cancelled:
       presenter?.userInteraction(false)
     default:
@@ -151,16 +141,13 @@ extension ImageCropperViewController: ImageCropperView {
     let hole = CAShapeLayer()
     hole.frame = mask.bounds
     hole.path = path
-//    hole.fillColor = fillColor
-    hole.fillRule = CAShapeLayerFillRule.evenOdd
+    hole.fillRule = kCAFillRuleEvenOdd
     mask.layer.mask = hole
     mask.backgroundColor = fillColor
   }
   
   func clearBorderAndGrid() {
-    grid.layer.sublayers?.forEach({ (sublayer) in
-      sublayer.removeFromSuperlayer()
-    })
+    grid.layer.sublayers?.forEach({ $0.removeFromSuperlayer() })
   }
   
   func drawBorber(by path: CGPath, with strokeColor: CGColor) {
@@ -174,9 +161,9 @@ extension ImageCropperViewController: ImageCropperView {
   }
   
   func drawGrid(with lines: [CGPath], with strokeColor: CGColor) {
-    lines.forEach { line in
+    lines.forEach {
       let lineLayer = CAShapeLayer()
-      lineLayer.path = line
+      lineLayer.path = $0
       lineLayer.fillColor = nil
       lineLayer.opacity = 1
       lineLayer.lineWidth = 1

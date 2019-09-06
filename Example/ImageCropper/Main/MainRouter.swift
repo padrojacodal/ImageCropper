@@ -41,11 +41,10 @@ extension MainRouterImplementation: MainRouter {
     picker.dismiss(animated: true)
   }
   
-  func openCropper(with figure: ImageCropperConfiguration.ImageCropperFigureType, image: Data) {
+  func openCropper(with figure: ImageCropperConfiguration.ImageCropperFigureType, image: Data, cornerRadius: CGFloat?) {
     guard let img = UIImage(data: image) else { return }
-    var config = ImageCropperConfiguration(with: img, and: figure)
-    
-    config.showGrid = false
+    var config = ImageCropperConfiguration(with: img, and: figure, cornerRadius: cornerRadius)
+    config.showGrid = true
     if figure == .customRect {
       config.customRatio = CGSize(width: 6, height: 5)
     }

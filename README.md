@@ -4,6 +4,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://mit-license.org)
 [![Platform](http://img.shields.io/badge/platform-ios-lightgrey.svg?style=flat)](https://developer.apple.com/resources/)
 
+
 ## Info
 Basis on [MVP + Clean Architecture] (https://github.com/FortechRomania/ios-mvp-clean-architecture/)
 
@@ -60,6 +61,19 @@ This library provides the ability to cut out sections of the original image in s
 `doneTitle` - title text of button for finishing cropping process (default: `Done`)
 
 `cancelTitle` - itle text of button for canceling cropping process (default: `Cancel`)
+
+## Updates
+
+### v.0.1.4
+
+**Added:**
+
+- variable corner radius for cutted figure
+    
+**Fixed:**
+
+- pinch gesture issue (thanks [davidpaul0880](https://github.com/davidpaul0880) for help)
+
 
 ## Usage Example
 

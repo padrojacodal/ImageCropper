@@ -11,10 +11,15 @@ class ImageCropperModelImplementation  {
   
   fileprivate var parentRect: CGRect?
   
+  fileprivate var initialSize: CGSize?
+  
   fileprivate var figureFrame: CGRect?
   fileprivate var panLastLocation: CGPoint?
   fileprivate var imageFrame = CGRect.zero
   fileprivate var gridSize:CGFloat?
+  
+  fileprivate var cornerRadius = CGFloat(0)
+  
   
   init(with configuration: ImageCropperConfiguration) {
     self.configuration = configuration
@@ -37,6 +42,7 @@ extension ImageCropperModelImplementation: ImageCropperModel {
       
       let figureSize = configuration.figure.maskSize(with: newValue.size, ratio: configuration.customRatio)
       figureFrame = CGRect(x: (newValue.width - figureSize.width) / 2, y: (newValue.height - figureSize.height) / 2, width: figureSize.width, height: figureSize.height)
+      cornerRadius =  min(figureSize.width, figureSize.height) / 2 * configuration.cornerRadius
       
       imageFrame = imageInitialFrame
     }
@@ -68,10 +74,9 @@ extension ImageCropperModelImplementation: ImageCropperModel {
   }
   
   var border: CGPath {
-    guard let frame = figureFrame else {
-      return UIBezierPath(rect: .zero).cgPath
-    }
-    return UIBezierPath(roundedRect: frame, cornerRadius: 75.0).cgPath
+    guard let frame = figureFrame else { return UIBezierPath(rect: .zero).cgPath }
+//    return UIBezierPath(roundedRect: frame, cornerRadius: cornerRadius != 0 ? cornerRadius : 1.0).cgPath
+    return UIBezierPath(roundedRect: frame, cornerRadius: 75).cgPath
   }
   
   var borderColor: CGColor {
@@ -143,17 +148,26 @@ extension ImageCropperModelImplementation: ImageCropperModel {
     return imageFrame
   }
   
+  func setStartedPinch() {
+    initialSize = CGSize(width: imageFrame.width, height: imageFrame.height)
+  }
+  
   func scalingFrame(for scale: CGFloat) -> CGRect {
     let borders = figureFrame ?? .zero
-    var newSize = CGSize(width: imageFrame.width * scale, height: imageFrame.height * scale)
+    let pinchStartSize: CGSize
+    if initialSize == nil {
+      pinchStartSize = CGSize(width: imageFrame.width, height: imageFrame.height)
+    } else {
+      pinchStartSize = initialSize!
+    }
+    var newSize = CGSize(width: pinchStartSize.width * scale, height: pinchStartSize.height * scale)
     
     if newSize.width < borders.width || newSize.height < borders.height {
-        newSize = image.size.scale(to: borders.size)
+      newSize = image.size.scale(to: borders.size)
     }
-    
     var newX = imageFrame.origin.x - (newSize.width - imageFrame.width) / 2
     var newY = imageFrame.origin.y - (newSize.height - imageFrame.height) / 2
-   
+    
     if newX + newSize.width <= borders.maxX {
       newX = borders.maxX - newSize.width
     }
@@ -171,7 +185,7 @@ extension ImageCropperModelImplementation: ImageCropperModel {
     if newSize.width / image.size.width < 2 || newSize.height / image.size.height < 2  {
       imageFrame = CGRect(origin: CGPoint(x: newX, y: newY), size: newSize)
     }
-
+    
     return imageFrame
   }
   
@@ -206,21 +220,22 @@ extension ImageCropperModelImplementation: ImageCropperModel {
     }
     
     let croppedImage = UIImage(cgImage: imageRef)
-    return configuration.figure == .circle ? circleMask(for: croppedImage) : croppedImage
+    return configuration.cornerRadius != 0 ? cutCorners(for: croppedImage) : croppedImage
 
   }
-
-  func circleMask(for originalImage: UIImage) -> UIImage {
-    
-    let roundedRect =  CGRect(origin: .zero, size: originalImage.size)
-    let path = UIBezierPath(roundedRect: roundedRect, cornerRadius: 75.0)
+  
+  func cutCorners(for originalImage: UIImage) -> UIImage {
+    let imgRect = CGRect(origin: .zero, size: originalImage.size)
+    let cornerRadius = min(imgRect.width, imgRect.height) / 2 * configuration.cornerRadius
+//    let path = UIBezierPath(roundedRect: imgRect, cornerRadius: cornerRadius)
+      let path = UIBezierPath(roundedRect: imgRect, cornerRadius: 75)  
     UIGraphicsBeginImageContextWithOptions(originalImage.size, false, 0)
     path.addClip()
     originalImage.draw(at: .zero)
-    let maskedImage = UIGraphicsGetImageFromCurrentImageContext()
+    let croppedImage = UIGraphicsGetImageFromCurrentImageContext()
     UIGraphicsEndImageContext()
     
-    return maskedImage ?? originalImage
+    return croppedImage ?? originalImage
   }
   
 }
