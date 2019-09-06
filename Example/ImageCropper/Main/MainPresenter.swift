@@ -62,14 +62,16 @@ extension MainPresenterImplementation: MainPresenter {
 
   func didSelect(_ image: Data) {
     imageData = image
+    
+    
+    
     router.closePhotoLibrary()
     view?.isBtnsFiguresEnable(true)
   }
   
   func cropFigure(_ figureID: Int) {
-//    let a = ImageCropperConfiguration.ImageCropperFigureType.rect(2, 2)
     
-    guard let figure = ImageCropperConfiguration.ImageCropperFigureType(rawValue: figureID)  else { return }
+    guard let figure = ImageCropperConfiguration.ImageCropperFigureType(rawValue: figureID) else { return }
     
     guard let img = imageData else {
       router.showAlertNoImage()
@@ -78,6 +80,3 @@ extension MainPresenterImplementation: MainPresenter {
     router.openCropper(with: figure, image: img)
   }
 }
-
-
-
